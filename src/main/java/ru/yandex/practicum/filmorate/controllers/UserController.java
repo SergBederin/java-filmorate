@@ -35,7 +35,6 @@ public class UserController {
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Отправлен запрос Put:/users");
         User oldUser;
-        user.setName(validateUser(user));
         if (users.containsKey(user.getId())) {
             oldUser = users.get(user.getId());
             users.put(user.getId(), user);
@@ -54,19 +53,17 @@ public class UserController {
         return userList;
     }
 
-    private String validateUser(User user) {
+    private void validateUser(User user) {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может быть пустым или содержать пробелы");
         }
         if (Objects.isNull(user.getName()) || user.getName().isBlank()) {
             log.info("Имя не указано, будет использован login пользователя.");
             user.setName(user.getLogin());
-            return user.getLogin();
-            //return user.getName();
-        } else if (user.getBirthday().isAfter((LocalDate.now()))) {
+
+        }
+        if (user.getBirthday().isAfter((LocalDate.now()))) {
             throw new ValidationException("Дата рождения не может быть в будущем времени");
-        } else {
-            return user.getName();
         }
     }
 
