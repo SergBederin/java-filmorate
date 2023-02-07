@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserControllerTest {
-      static UserController userController = new UserController();
+    static UserController userController = new UserController();
 
     @Test
     void shouldValidateEmptyLogin() {
@@ -19,7 +19,7 @@ public class UserControllerTest {
         user.setEmail("user@mail.ru");
         user.setBirthday(LocalDate.of(2023, 01, 01));
         user.setLogin("Login login");
-        Exception exception = assertThrows(ValidationException.class, () -> userController.addUser(user));
+        Exception exception = assertThrows(ValidationException.class, () -> userController.createUser(user));
         assertEquals("Логин не может быть пустым или содержать пробелы", exception.getMessage());
     }
 
@@ -29,7 +29,7 @@ public class UserControllerTest {
         user.setEmail("user@mail.ru");
         user.setLogin("Login");
         user.setBirthday(LocalDate.of(2012, 12, 12));
-        userController.addUser(user);
+        userController.createUser(user);
         assertEquals("Login", user.getName());
     }
 
@@ -40,7 +40,7 @@ public class UserControllerTest {
         user.setLogin("Login");
         user.setEmail("name@mail.ru");
         user.setBirthday(LocalDate.of(2024, 01, 01));
-        Exception exception = assertThrows(ValidationException.class, () -> userController.addUser(user));
+        Exception exception = assertThrows(ValidationException.class, () -> userController.createUser(user));
         assertEquals("Дата рождения не может быть в будущем времени", exception.getMessage());
 
     }

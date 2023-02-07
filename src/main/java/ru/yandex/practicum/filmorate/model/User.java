@@ -13,8 +13,7 @@ import java.time.LocalDate;
 @Setter
 @ToString
 
-public class User {
-    private long id;
+public class User extends AbstractModel {
     @NotBlank
     @Email
     private String email;

@@ -11,8 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
-public class Film {
-    private Long id;
+public class Film extends AbstractModel {
     @NotBlank
     private String name;
     @NotNull

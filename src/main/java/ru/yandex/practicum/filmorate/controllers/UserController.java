@@ -1,59 +1,45 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 @RestController
-public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
-    private long idUser = 0;
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-
-    @RequestMapping("/home")
-    public String homePage() {
-        return "FILMORATE";
-    }
-
-   @PostMapping(value = "/users")
-   public User addUser(@Valid @RequestBody User user) {
-       log.info("Отправлен запрос Post:/users");
-       validateUser(user);
-       user.setId(++idUser);
-       users.put(user.getId(), user);
-       log.debug("Добавлен пользователь: {}", user);
-       return user;
-   }
-
-    @PutMapping(value = "/users")
-    public User updateUser(@Valid @RequestBody User user) {
-        log.info("Отправлен запрос Put:/users");
-        User oldUser;
-        if (users.containsKey(user.getId())) {
-            oldUser = users.get(user.getId());
-            users.put(user.getId(), user);
-            log.debug("Пользователь {} изменен на {}", oldUser, user);
-        } else {
-            throw new ValidationException("Нет пользователя с таким ID");
-        }
+@RequestMapping("/users")
+@Slf4j
+public class UserController extends AbstractController<User> {
+    @PostMapping
+    public User createUser(@Valid @RequestBody User user) {
+        log.info("Отправлен запрос Post:/users");
+        validate(user);
+        super.create(user);
+        log.info("Добавлен пользователь: {}", user);
         return user;
     }
 
-    @GetMapping("/users")
+    @PutMapping
+    public User updateUser(@Valid @RequestBody User user) {
+        log.info("Отправлен запрос Put:/users");
+        User newUser = super.update(user);
+        log.info("Пользователь {} изменен", newUser);
+        return newUser;
+    }
+
+    @GetMapping
     public List<User> getUsers() {
         log.info("Отправлен запрос GET:/users");
-        List<User> userList = new ArrayList<>(users.values());
-        log.debug("Всего пользователей: {}", users.size());
+        List<User> userList = super.allData();
+        log.info("Всего пользователей: {}", userList.size());
         return userList;
     }
 
-    private void validateUser(User user) {
+    void validate(User user) {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может быть пустым или содержать пробелы");
         }

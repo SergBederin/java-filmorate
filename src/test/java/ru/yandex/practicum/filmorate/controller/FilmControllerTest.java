@@ -17,7 +17,6 @@ public class FilmControllerTest {
         Film film = new Film();
         Exception exception = assertThrows(NullPointerException.class, () -> filmController.createFilm(film));
         assertNull(exception.getMessage());
-
         film.setName("");
         exception = assertThrows(NullPointerException.class, () -> filmController.createFilm(film));
         assertNull(exception.getMessage());
