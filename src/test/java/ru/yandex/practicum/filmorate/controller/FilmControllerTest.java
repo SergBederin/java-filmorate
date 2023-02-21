@@ -1,57 +1,80 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
-    static FilmController filmController = new FilmController();
+
+    private Film film;
+    private static Validator validator;
+    //private  FilmService filmService;
+    private FilmController filmController;
+    private FilmStorage filmStorage;
+
+    @BeforeAll
+    public static void init() {
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        film = new Film();
+        filmStorage = new InMemoryFilmStorage();
+        filmController = new FilmController(new FilmService(filmStorage));
+        film.setName("Кинофильм");
+        film.setDescription("Замечательный фильм");
+        film.setReleaseDate(LocalDate.of(2023, 01, 01));
+        film.setDuration(90);
+    }
 
     @Test
     void shouldValidateFilmEmptyName() {
-        Film film = new Film();
-        Exception exception = assertThrows(NullPointerException.class, () -> filmController.createFilm(film));
-        assertNull(exception.getMessage());
         film.setName("");
-        exception = assertThrows(NullPointerException.class, () -> filmController.createFilm(film));
-        assertNull(exception.getMessage());
+        Set<ConstraintViolation<Film>> validate = validator.validate(film);
+        Set<String> errorMessages = validate.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet());
+        assertEquals(1, errorMessages.size());
     }
 
     @Test
     void shouldValidateDescriptionFilmTest() {
-        Film film = new Film();
-        film.setName("Кинофильм");
-        film.setReleaseDate(LocalDate.of(2023, 01, 01));
         film.setDescription(("Замечательный фильм замечательный фильм замечательный фильм замечательный фильм замечательный фильм замечательный фильм замечательный фильм замечательный фильм " +
                 "замечательный фильм замечательный фильм замечательный фильм "));
-        Exception exception = assertThrows(ValidationException.class, () -> filmController.createFilm(film));
-        assertEquals("Максимальная длина описания — 200 символов.", exception.getMessage());
+        Set<ConstraintViolation<Film>> validate = validator.validate(film);
+        Set<String> errorMessages = validate.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet());
+        assertEquals(1, errorMessages.size());
     }
 
     @Test
-    void shouldValidateFilmReleaseDate() {
-        Film film = new Film();
-        film.setName("Кинофильм");
-        film.setDescription(("Замечательный фильм"));
-        film.setDuration(60);
-        film.setReleaseDate(LocalDate.of(1800, 01, 01));
+    void dateValidationTest() {
+        film.setReleaseDate(LocalDate.of(1895, 12, 27));
+        Set<ConstraintViolation<Film>> validate = validator.validate(film);
         Exception exception = assertThrows(ValidationException.class, () -> filmController.createFilm(film));
         assertEquals("Дата релиза не может быть раньше 28 декабря 1895 года.", exception.getMessage());
     }
 
     @Test
     void shouldValidateFilmDuration() {
-        Film film = new Film();
-        film.setName("Кинофильм");
-        film.setDescription("Замечательный фильм");
-        film.setReleaseDate(LocalDate.of(2023, 01, 01));
-        film.setDuration(-60);
-        Exception exception = assertThrows(ValidationException.class, () -> filmController.createFilm(film));
-        assertEquals("Продолжительность фильма должна быть положительной.", exception.getMessage());
+        film.setDuration(0);
+        Set<ConstraintViolation<Film>> validate = validator.validate(film);
+        Set<String> errorMessages = validate.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet());
+        assertEquals(1, errorMessages.size());
     }
 }
+
