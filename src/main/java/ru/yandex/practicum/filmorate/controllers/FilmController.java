@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -40,9 +40,9 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable Long id) {
+    public Optional<Film> getFilmById(@PathVariable Long id) {
         log.info("Отправлен запрос GET:/films");
-        return filmService.getFilmStorage().getFilmById(id);
+        return Optional.ofNullable(filmService.getFilmStorage().getFilmById(id));
     }
 
     @PutMapping(value = "/{id}/like/{userId}")
@@ -60,7 +60,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Set<Film> getPopularFilms(@RequestParam(required = false) Integer count) {
+    public List<Film> getPopularFilms(@RequestParam(required = false) Integer count) {
         return filmService.getPopularFilms(count);
     }
 

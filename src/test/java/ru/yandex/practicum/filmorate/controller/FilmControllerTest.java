@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -27,6 +29,7 @@ public class FilmControllerTest {
     //private  FilmService filmService;
     private FilmController filmController;
     private FilmStorage filmStorage;
+    private UserStorage userStorage;
 
     @BeforeAll
     public static void init() {
@@ -37,7 +40,8 @@ public class FilmControllerTest {
     public void beforeEach() {
         film = new Film();
         filmStorage = new InMemoryFilmStorage();
-        filmController = new FilmController(new FilmService(filmStorage));
+        userStorage = new InMemoryUserStorage();
+        filmController = new FilmController(new FilmService(filmStorage, userStorage));
         film.setName("Кинофильм");
         film.setDescription("Замечательный фильм");
         film.setReleaseDate(LocalDate.of(2023, 01, 01));

@@ -8,16 +8,19 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
     private final UserService userService;
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         return userService.getUserStorage().createUser(user);
@@ -45,8 +48,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User find(@PathVariable Long id) {
-        return userService.getUserStorage().findId(id);
+    public Optional<User> find(@PathVariable Long id) {
+        return Optional.ofNullable(userService.getUserStorage().findId(id));
     }
 
     @GetMapping("/{id}/friends")

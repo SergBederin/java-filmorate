@@ -1,27 +1,27 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-
+@RequiredArgsConstructor
 @Slf4j
 public class UserService {
     @Getter
     private final UserStorage userStorage;
-
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
 
     public void addFriend(Long userId, Long friendId) throws NotFoundException {
         final User user = userStorage.findId(userId);
@@ -41,12 +41,10 @@ public class UserService {
     public void deleteFriend(Long userId, Long friendId) {
         User user = userStorage.findId(userId);
         User friend = userStorage.findId(friendId);
-
         Set<Long> userFriends = user.getFriends();
         userFriends.remove(friendId);
         user.setFriends(userFriends);
         userStorage.updateUser(user);
-
         Set<Long> friendFriends = friend.getFriends();
         friendFriends.remove(userId);
         friend.setFriends(friendFriends);
@@ -71,5 +69,21 @@ public class UserService {
         List<User> first = getFriends(id);
         List<User> second = getFriends(otherId);
         return first.stream().filter(second::contains).collect(Collectors.toList());
+    }
+
+    public static boolean validateUser(User user) {
+        if (user.getLogin().contains(" ")) {
+            log.info("Пользователь не добавлен: {}", user);
+            throw new ValidationException("Логин не может быть пустым или содержать пробелы");
+        }
+        if (Objects.isNull(user.getName()) || user.getName().isBlank()) {
+            log.info("Имя не указано, будет использован login пользователя.");
+
+        }
+        if (user.getBirthday().isAfter((LocalDate.now()))) {
+            log.info("Пользователь не добавлен: {}", user);
+            throw new ValidationException("Дата рождения не может быть в будущем времени");
+        }
+        return true;
     }
 }

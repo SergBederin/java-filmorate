@@ -3,10 +3,9 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -17,7 +16,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        if (validateUser(user)) {
+        if (UserService.validateUser(user)) {
             user.setName(returnUserName(user));
             user.setId(idUser);
             storage.put(idUser++, user);
@@ -38,13 +37,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteUser(User user) {
-        // validateUser(user);
-        if (storage.containsKey(user.getId())) {
-            storage.remove(user.getId());
-            log.debug("Пользователь {} удалён", user);
-        } else {
+        if (!storage.containsKey(user.getId())) {
             throw new NotFoundException("Нет такого ID: " + user.getId());
         }
+        storage.remove(user.getId());
+        log.debug("Пользователь {} удалён", user);
     }
 
     @Override
@@ -71,22 +68,6 @@ public class InMemoryUserStorage implements UserStorage {
         return storage.get(userId);
     }
 
-    private boolean validateUser(User user) {
-        if (user.getLogin().contains(" ")) {
-            log.info("Пользователь не добавлен: {}", user);
-            throw new ValidationException("Логин не может быть пустым или содержать пробелы");
-        }
-        if (Objects.isNull(user.getName()) || user.getName().isBlank()) {
-            log.info("Имя не указано, будет использован login пользователя.");
-
-        }
-        if (user.getBirthday().isAfter((LocalDate.now()))) {
-            log.info("Пользователь не добавлен: {}", user);
-            throw new ValidationException("Дата рождения не может быть в будущем времени");
-        }
-        return true;
-    }
-
     private String returnUserName(User user) {
         if (Objects.isNull(user.getName()) || user.getName().isBlank() || user.getName().isEmpty()) {
             return user.getLogin();
@@ -94,5 +75,4 @@ public class InMemoryUserStorage implements UserStorage {
             return user.getName();
         }
     }
-
 }
