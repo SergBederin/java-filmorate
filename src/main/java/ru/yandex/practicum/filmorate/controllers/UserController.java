@@ -23,13 +23,13 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        return userService.getUserStorage().createUser(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Отправлен запрос Put:/users");
-        return userService.getUserStorage().updateUser(user);
+        return userService.updateUser(user);
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
@@ -42,20 +42,19 @@ public class UserController {
     @GetMapping
     public List<User> getUsers() {
         log.info("Отправлен запрос GET:/users");
-        List<User> userList = userService.getUserStorage().allData();
+        List<User> userList = userService.getUsers();
         log.info("Всего пользователей: {}", userList.size());
         return userList;
     }
 
     @GetMapping("/{id}")
     public Optional<User> find(@PathVariable Long id) {
-        return Optional.ofNullable(userService.getUserStorage().findId(id));
+        return Optional.ofNullable(userService.findId(id));
     }
 
     @GetMapping("/{id}/friends")
     public List<User> findFriends(@PathVariable Long id) {
         return userService.getFriends(id);
-        // return userService.getFriends(userService.getUserStorage().findId(id).getFriends());
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
@@ -68,6 +67,5 @@ public class UserController {
     public void delete(@PathVariable Long id, @PathVariable Long friendId) {
         userService.deleteFriend(id, friendId);
     }
-
 
 }

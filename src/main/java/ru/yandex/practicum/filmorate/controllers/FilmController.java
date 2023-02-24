@@ -24,25 +24,25 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Отправлен запрос Post:/films");
-        return filmService.getFilmStorage().create(film);
+        return filmService.create(film);
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("Отправлен запрос Put:/films");
-        return filmService.getFilmStorage().updateFilm(film);
+        return filmService.updateFilm(film);
     }
 
     @GetMapping
     public List<Film> getFilms() {
         log.info("Отправлен запрос GET:/films");
-        return filmService.getFilmStorage().getFilms();
+        return filmService.getFilms();
     }
 
     @GetMapping("/{id}")
     public Optional<Film> getFilmById(@PathVariable Long id) {
         log.info("Отправлен запрос GET:/films");
-        return Optional.ofNullable(filmService.getFilmStorage().getFilmById(id));
+        return Optional.ofNullable(filmService.getFilmById(id));
     }
 
     @PutMapping(value = "/{id}/like/{userId}")

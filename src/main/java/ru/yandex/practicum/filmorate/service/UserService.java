@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    @Getter
     private final UserStorage userStorage;
+
+    public User createUser(User user) {
+        if (validateUser(user)) {
+            userStorage.createUser(user);
+        }
+        return user;
+    }
+
+    public User updateUser(User user) {
+
+        return userStorage.updateUser(user);
+    }
+
+    public List<User> getUsers() {
+
+        return userStorage.allData();
+    }
+
+    public User findId(Long id) {
+
+        return userStorage.findId(id);
+    }
 
     public void addFriend(Long userId, Long friendId) throws NotFoundException {
         final User user = userStorage.findId(userId);
@@ -71,7 +91,7 @@ public class UserService {
         return first.stream().filter(second::contains).collect(Collectors.toList());
     }
 
-    public static boolean validateUser(User user) {
+    public boolean validateUser(User user) {
         if (user.getLogin().contains(" ")) {
             log.info("Пользователь не добавлен: {}", user);
             throw new ValidationException("Логин не может быть пустым или содержать пробелы");

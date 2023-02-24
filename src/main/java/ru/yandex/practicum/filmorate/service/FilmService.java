@@ -13,13 +13,33 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    @Getter
     private final FilmStorage filmStorage;
     @Getter
     private final UserStorage userStorage;
+
+    public Film create(Film film) {
+        if (validateFilm(film)) {
+            filmStorage.create(film);
+        }
+        return film;
+    }
+
+    public Film updateFilm(Film film) {
+
+        return filmStorage.updateFilm(film);
+    }
+
+    public List<Film> getFilms() {
+        return filmStorage.getFilms();
+    }
+
+    public Film getFilmById(Long id) {
+        return filmStorage.getFilmById(id);
+    }
 
     public void addLike(Long filmId, Long userId) {
         userStorage.getUserById(userId);
@@ -56,7 +76,7 @@ public class FilmService {
         return popularFilms.stream().limit(filmQuantity).collect(Collectors.toList());
     }
 
-    public static boolean validateFilm(Film film) {
+    public  boolean validateFilm(Film film) {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название фильма не должно быть пустым.");
         }
