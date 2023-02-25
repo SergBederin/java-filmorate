@@ -1,56 +1,71 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
-public class UserController extends AbstractController<User> {
+public class UserController {
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        log.info("Отправлен запрос Post:/users");
-        validate(user);
-        super.create(user);
-        log.info("Добавлен пользователь: {}", user);
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Отправлен запрос Put:/users");
-        User newUser = super.update(user);
-        log.info("Пользователь {} изменен", newUser);
-        return newUser;
+        return userService.updateUser(user);
+    }
+
+    @PutMapping(value = "/{id}/friends/{friendId}")
+    public void addFriends(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("Отправлен запрос Put/users/{id}/friends/{friendId}");
+        userService.addFriend(id, friendId);
+        log.info("Пользователь {} добавлен в друзья", friendId);
     }
 
     @GetMapping
     public List<User> getUsers() {
         log.info("Отправлен запрос GET:/users");
-        List<User> userList = super.allData();
+        List<User> userList = userService.getUsers();
         log.info("Всего пользователей: {}", userList.size());
         return userList;
     }
 
-    void validate(User user) {
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может быть пустым или содержать пробелы");
-        }
-        if (Objects.isNull(user.getName()) || user.getName().isBlank()) {
-            log.info("Имя не указано, будет использован login пользователя.");
-            user.setName(user.getLogin());
+    @GetMapping("/{id}")
+    public Optional<User> find(@PathVariable Long id) {
+        return Optional.ofNullable(userService.findId(id));
+    }
 
-        }
-        if (user.getBirthday().isAfter((LocalDate.now()))) {
-            throw new ValidationException("Дата рождения не может быть в будущем времени");
-        }
+    @GetMapping("/{id}/friends")
+    public List<User> findFriends(@PathVariable Long id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        log.info("Отправлен запрос GET:/{id}/friends/common/{otherId}");
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
+    public void delete(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.deleteFriend(id, friendId);
     }
 
 }
