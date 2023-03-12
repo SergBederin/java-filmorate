@@ -1,6 +1,7 @@
 # java-filmorate
 
 ## Модель базы данных (ER-диаграмма)
+
 ![Модель базы данных](DBD-Filmorate.png)
 
 ### Примеры запросов в базу данных
@@ -16,6 +17,7 @@
     SELECT *
     FROM users
     WHERE user_id = 1;
+
 
 
 
