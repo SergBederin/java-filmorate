@@ -2,17 +2,19 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,16 @@ public class FilmService {
     private final FilmStorage filmStorage;
     @Getter
     private final UserStorage userStorage;
+    private LikeStorage likeStorage;
+
+    @Autowired
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       LikeStorage likeStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+        this.likeStorage = likeStorage;
+    }
 
     public Film create(Film film) {
         if (validateFilm(film)) {
@@ -43,20 +55,13 @@ public class FilmService {
 
     public void addLike(Long filmId, Long userId) {
         userStorage.getUserById(userId);
-        Film film = filmStorage.getFilmById(filmId);
-        film.getLikes().add(userId);
+        likeStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(Long filmId, Long userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        Set<Long> likes = film.getLikes();
-        userStorage.getUserById(userId);
-        if (likes.contains(userId)) {
-            likes.remove(userId);
-            film.setLikes(likes);
-        } else {
-            throw new NotFoundException("Пользователь с ID: " + userId + " не ставил лайк фильму");
-        }
+
+        userStorage.checkUserContains(userId);
+        likeStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(Integer filmQuantity) {
@@ -76,7 +81,8 @@ public class FilmService {
         return popularFilms.stream().limit(filmQuantity).collect(Collectors.toList());
     }
 
-    public  boolean validateFilm(Film film) {
+
+    public boolean validateFilm(@NotNull Film film) {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название фильма не должно быть пустым.");
         }

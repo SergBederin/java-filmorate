@@ -1,14 +1,15 @@
-MERGE INTO ratings_mpa (id, name, description)
-    VALUES (1, 'G', 'У фильма нет возрастных ограничений'),
-           (2, 'PG', 'Детям рекомендуется смотреть фильм с родителями'),
-           (3, 'PG-13', 'Детям до 13 лет просмотр нежелателен'),
-           (4, 'R', 'Лицам до 17 лет просматривать фильм можно только в присутствии взрослого'),
-           (5, 'NC-17', 'Лицам до 18 лет просмотр запрещён');
+DELETE FROM Rating;
+DELETE FROM Genres;
 
-MERGE INTO genres (id, name)
-    VALUES (1, 'Комедия'),
-           (2, 'Драма'),
-           (3, 'Мультфильм'),
-           (4, 'Триллер'),
-           (5, 'Документальный'),
-           (6, 'Боевик');
+INSERT INTO Rating(rating_id, name) values(1, 'G');
+INSERT INTO Rating(rating_id, name) values(2, 'PG');
+INSERT INTO Rating(rating_id, name) values(3, 'PG-13');
+INSERT INTO Rating(rating_id, name) values(4, 'R');
+INSERT INTO Rating(rating_id, name) values(5, 'NC-17');
+
+INSERT INTO Genres(genre_id, name) values(1, 'Комедия');
+INSERT INTO Genres(genre_id, name) values(2, 'Драма');
+INSERT INTO Genres(genre_id, name) values(3, 'Мультфильм');
+INSERT INTO Genres(genre_id, name) values(4, 'Триллер');
+INSERT INTO Genres(genre_id, name) values(5, 'Документальный');
+INSERT INTO Genres(genre_id, name) values(6, 'Боевик');

@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.controllers.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -20,12 +21,13 @@ public class UserControllerTest {
     private User user;
     private UserController userController;
     private UserStorage userStorage;
+    private FriendStorage friendStorage;
 
     @BeforeEach
     public void beforeEach() {
         user = new User();
         userStorage = new InMemoryUserStorage();
-        userController = new UserController(new UserService(userStorage));
+        userController = new UserController(new UserService(userStorage, friendStorage));
         user.setLogin("login");
         user.setEmail("name@ya.ru");
         user.setName("name");

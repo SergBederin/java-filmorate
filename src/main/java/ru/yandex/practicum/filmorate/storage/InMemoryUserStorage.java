@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -33,25 +34,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void deleteUser(User user) {
-        if (!storage.containsKey(user.getId())) {
-            throw new NotFoundException("Нет такого ID: " + user.getId());
-        }
-        storage.remove(user.getId());
-        log.debug("Пользователь {} удалён", user);
-    }
-
-    @Override
-    public User findId(Long id) {
-        if (storage.containsKey(id)) {
-            return storage.get(id);
-        } else {
-            throw new NotFoundException("Нет такого ID: " + id);
-        }
-    }
-
-    @Override
-    public List<User> allData() {
+    public List<User> getUsers() {
         List<User> userList = new ArrayList<>(storage.values());
         log.debug("Текущее количество пользователей: {}", storage.size());
         return userList;
@@ -64,6 +47,27 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return storage.get(userId);
     }
+
+    @Override
+    public void deleteUser(Long userId) {
+        if (userId == null) {
+            throw new ValidationException("Передан пустой аргумент!");
+        }
+        if (!storage.containsKey(userId)) {
+            throw new NotFoundException("Пользователь с ID=" + userId + " не найден!");
+        }
+        // удаляем из списка друзей пользователя у других пользователей
+        for (User user : storage.values()) {
+            user.getFriends().remove(userId);
+        }
+        storage.remove(userId);
+    }
+
+    @Override
+    public void checkUserContains(Long id) {
+
+    }
+
 
     private String returnUserName(User user) {
         if (Objects.isNull(user.getName()) || user.getName().isBlank() || user.getName().isEmpty()) {

@@ -29,7 +29,8 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Отправлен запрос Put:/users");
-        return userService.updateUser(user);
+        userService.updateUser(user);
+        return user;
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")

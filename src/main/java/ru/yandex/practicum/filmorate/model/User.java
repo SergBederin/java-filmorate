@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.validation.constraints.Email;
@@ -7,18 +8,20 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 @ToString
 
 @NoArgsConstructor
-@AllArgsConstructor
-
+@Data
+@Builder
 public class User {
-    private Long id;
+    private Long id = 0L;
     @NotBlank
     @Email
     private String email;
@@ -28,5 +31,23 @@ public class User {
     private String name;
     @NotNull
     private LocalDate birthday;
-    private Set<Long> friends = new HashSet<>();
+    @JsonIgnore
+    private final List<User> friends = new ArrayList<>();
+
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("email", email);
+        values.put("login", login);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
+    }
 }
