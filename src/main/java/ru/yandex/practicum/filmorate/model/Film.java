@@ -30,6 +30,7 @@ public class Film {
 
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
+    ;
 
     public Film(Long id, String name, String description, LocalDate releaseDate, Integer duration,
                 List likes, Mpa mpa, List genres) {

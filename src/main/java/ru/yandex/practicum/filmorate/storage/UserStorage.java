@@ -17,4 +17,12 @@ public interface UserStorage {
 
     public void checkUserContains(Long id);
 
+    void addFriend(Long userId, Long friendId);
+
+    void deleteFriend(Long userId, Long friendId);
+
+    List<User> getFriends(Long Id);
+
+    List getCommonFriends(Long id1, Long id2);
+
 }

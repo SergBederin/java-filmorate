@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -14,12 +13,10 @@ import java.util.Objects;
 @Service
 @Slf4j
 public class UserService {
-    private UserStorage userStorage;
-    private FriendStorage friendStorage;
+    private final UserStorage userStorage;
 
-    public UserService(UserStorage userStorage, FriendStorage friendStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.friendStorage = friendStorage;
     }
 
     public User createUser(User user) {
@@ -48,22 +45,22 @@ public class UserService {
         if (userId == friendId) {
             throw new ValidationException("Нельзя добавить самого себя в друзья!");
         }
-        friendStorage.addFriend(userId, friendId);
+        userStorage.addFriend(userId, friendId);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
         if (userId == friendId) {
             throw new ValidationException("Нельзя удалить самого себя из друзей!");
         }
-        friendStorage.deleteFriend(userId, friendId);
+        userStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getFriends(Long Id) {
-        return friendStorage.getFriends(Id);
+        return userStorage.getFriends(Id);
     }
 
     public List getCommonFriends(Long id1, Long id2) {
-        return friendStorage.getCommonFriends(id1, id2);
+        return userStorage.getCommonFriends(id1, id2);
     }
 
     public boolean validateUser(User user) {

@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
-    public void addFriends(@PathVariable Long id, @PathVariable Long friendId) {
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Отправлен запрос Put/users/{id}/friends/{friendId}");
         userService.addFriend(id, friendId);
         log.info("Пользователь {} добавлен в друзья", friendId);

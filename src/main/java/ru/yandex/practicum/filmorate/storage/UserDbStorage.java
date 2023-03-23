@@ -29,7 +29,7 @@ public class UserDbStorage implements UserStorage {
 
     public List getUsers() {
         String sql = "SELECT user_id, login, name, email, birthday " +
-                    "FROM Users;";
+                "FROM Users;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
     }
 
@@ -59,18 +59,20 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(Long id) {
-        checkUserContains(id);
         String sql = "SELECT user_id, login, name, email, birthday " +
                 "FROM Users " +
                 "WHERE user_id = ?;";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeUser(rs), id);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не существует"));
     }
 
     @Override
     public void deleteUser(Long id) {
-        checkUserContains(id);
         String sql = "DELETE FROM Users WHERE user_id = ?;";
         jdbcTemplate.update(sql, id);
+        log.info("Удалён пользователь  {}", id);
     }
 
     private String returnUserName(User user) {
@@ -79,6 +81,38 @@ public class UserDbStorage implements UserStorage {
         } else {
             return user.getName();
         }
+    }
+
+    public void addFriend(Long userId, Long friendId) {
+        checkUserContains(userId);
+        checkUserContains(friendId);
+        String sql = "INSERT INTO Friendship(user_id, friend_id) " +
+                "VALUES(?,?);";
+        jdbcTemplate.update(sql, userId, friendId);
+    }
+
+    public void deleteFriend(Long friendId, Long userId) {
+        String sql = "DELETE FROM Friendship WHERE user_id in (?,?) AND friend_id in (?,?);";
+        jdbcTemplate.update(sql, userId, friendId, userId, friendId);
+    }
+
+    public List getFriends(Long Id) {
+        String sql = "SELECT u.user_id, u.login, u.name, u.email, u.birthday " +
+                "FROM Friendship f " +
+                "INNER JOIN Users u ON u.user_id = f.friend_id " +
+                "WHERE f.user_id = ? " +
+                "ORDER BY u.user_id;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), Id);
+    }
+
+    public List getCommonFriends(Long id1, Long id2) {
+        String sql = "SELECT u.user_id, u.login, u.name, u.email, u.birthday " +
+                "FROM Friendship f1 " +
+                "INNER JOIN Friendship f2 on f2.friend_id = f1.friend_id " +
+                "INNER JOIN Users u on u.user_id = f2.friend_id " +
+                "WHERE f1.user_id = ? and f2.user_id = ? " +
+                "AND f1.friend_id <> f2.user_id AND f2.friend_id <> f1.user_id;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id1, id2);
     }
 
     @Override
@@ -99,4 +133,5 @@ public class UserDbStorage implements UserStorage {
         LocalDate birthday = rs.getDate("birthday").toLocalDate();
         return new User(id, email, login, name, birthday);
     }
+
 }

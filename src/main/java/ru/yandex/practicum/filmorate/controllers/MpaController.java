@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.MpaService;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 
@@ -15,23 +15,23 @@ import java.util.Collection;
 @RequestMapping("/mpa")
 @Slf4j
 public class MpaController {
-
-    private MpaService mpaService;
+    private final FilmService filmService;
 
     @Autowired
-    public MpaController(MpaService mpaService) {
-        this.mpaService = mpaService;
+
+    public MpaController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Mpa> getAllMpa() {
         log.info("Отправлен запрос Get:'/mpa'");
-        return mpaService.getAllMpa();
+        return filmService.getAllMpa();
     }
 
     @GetMapping("/{id}")
     public Mpa getMpaById(@PathVariable Integer id) {
         log.info("Отправлен запрос Get:'/mpa/{id}'");
-        return mpaService.getMpaById(id);
+        return filmService.getMpaById(id);
     }
 }
