@@ -29,11 +29,12 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Отправлен запрос Put:/users");
-        return userService.updateUser(user);
+        userService.updateUser(user);
+        return user;
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
-    public void addFriends(@PathVariable Long id, @PathVariable Long friendId) {
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Отправлен запрос Put/users/{id}/friends/{friendId}");
         userService.addFriend(id, friendId);
         log.info("Пользователь {} добавлен в друзья", friendId);

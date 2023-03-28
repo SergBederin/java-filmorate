@@ -41,7 +41,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public Optional<Film> getFilmById(@PathVariable Long id) {
-        log.info("Отправлен запрос GET:/films");
+        log.info("Отправлен запрос GET:/films/{id}");
         return Optional.ofNullable(filmService.getFilmById(id));
     }
 
